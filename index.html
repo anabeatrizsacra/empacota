@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoxOptimizer - Calculadora de Embalagens</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BOX OPTIMIZER</h1>
+            <p>Calculadora de otimização de embalagens - Encontre as dimensões ideais para maior eficiência</p>
+        </header>
+
+        <div class="tabs-container">
+            <button class="tab-button active" onclick="mudarAba('analise-individual', this)">Análise Individual</button>
+            <button class="tab-button" onclick="mudarAba('analise-comparativa', this)">Análise Comparativa</button>
+        </div>
+
+        <div class="content">
+            <!-- ABA 1: ANÁLISE INDIVIDUAL -->
+            <div id="analise-individual" class="tab-content active">
+                <div class="section">
+                    <h2>Calcular Dimensões Otimizadas</h2>
+
+                    <div class="form-group-grid full-width">
+                        <div class="form-group">
+                            <label for="caixa">Selecione a Caixa</label>
+                            <select id="caixa" onchange="atualizarOcupacao()">
+                                <option value="">-- Escolha uma caixa --</option>
+                                <option value="personalizada">Caixa Personalizada</option>
+                                <!-- Preenchido via JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="campos-personalizados" class="form-group" style="display: none;">
+                        <div class="form-group-grid">
+                            <div class="form-group">
+                                <label for="comp_personalizado">Comprimento (mm)</label>
+                                <input type="number" id="comp_personalizado" placeholder="Ex: 250" min="10" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="larg_personalizado">Largura (mm)</label>
+                                <input type="number" id="larg_personalizado" placeholder="Ex: 170" min="10" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="alt_personalizado">Altura (mm)</label>
+                                <input type="number" id="alt_personalizado" placeholder="Ex: 250" min="10" step="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group-grid">
+                        <div class="form-group">
+                            <label for="ocupacao_atual">Ocupação Atual da Caixa (%)</label>
+                            <input type="number" id="ocupacao_atual" value="25" min="0" max="100" step="1" onchange="calcular()">
+                        </div>
+                        <div class="form-group">
+                            <label for="papel_atual">Preenchimento de Papel Atual (m)</label>
+                            <input type="number" id="papel_atual" value="2.5" min="0" max="20" step="0.1" onchange="calcular()">
+                        </div>
+                        <div class="form-group">
+                            <label for="meta">Meta de Ocupação (%)</label>
+                            <input type="number" id="meta" value="80" min="20" max="95" step="5">
+                        </div>
+                        <div class="form-group">
+                            <label for="largura_minima">Largura Mínima (mm) - Opcional</label>
+                            <input type="number" id="largura_minima" value="" placeholder="Deixe em branco para desativar" min="50" step="10">
+                        </div>
+                        <div class="form-group">
+                            <label for="quantidade_caixas">Quantidade de Caixas (análise de custo)</label>
+                            <input type="number" id="quantidade_caixas" value="100" min="1" step="1">
+                        </div>
+                    </div>
+
+                    <button class="btn-calcular" onclick="calcular()">Calcular Dimensões</button>
+
+                    <div id="resultado" class="empty-state" style="margin-top: 20px;">
+                        Selecione uma caixa para ver as dimensões otimizadas
+                    </div>
+                </div>
+            </div>
+
+            <!-- ABA 2: ANÁLISE COMPARATIVA -->
+            <div id="analise-comparativa" class="tab-content">
+                <div class="section">
+                    <h2>Comparar Múltiplas Caixas</h2>
+
+                    <h3 style="margin: 20px 0 15px 0; font-size: 1.1em; color: #333;">Selecione as Caixas para Comparar</h3>
+
+                    <div class="caixa-actions">
+                        <button onclick="selecionarTodas()">Selecionar Todas</button>
+                        <button onclick="limparSelecao()">Limpar Seleção</button>
+                    </div>
+
+                    <div class="caixas-checkbox-grid" id="caixas-checkboxes">
+                        <!-- Preenchido por JavaScript -->
+                    </div>
+
+                    <h3 style="margin: 25px 0 15px 0; font-size: 1.1em; color: #333;">Quantidade por Tipo de Caixa</h3>
+
+                    <div id="quantidades-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                        <!-- Preenchido por JavaScript -->
+                    </div>
+
+                    <h3 style="margin: 25px 0 15px 0; font-size: 1.1em; color: #333;">Parâmetros da Análise</h3>
+
+                    <div class="form-group-grid">
+                        <div class="form-group">
+                            <label for="meta_comparativa">Meta de Ocupação (%)</label>
+                            <input type="number" id="meta_comparativa" value="80" min="20" max="95" step="5">
+                        </div>
+                        <div class="form-group">
+                            <label for="largura_minima_comparativa">Largura Mínima (mm) - Opcional</label>
+                            <input type="number" id="largura_minima_comparativa" value="" placeholder="Deixe em branco para desativar" min="50" step="10">
+                        </div>
+                    </div>
+
+                    <button class="btn-calcular" onclick="compararCaixas()" style="margin-bottom: 20px;">Comparar Caixas</button>
+
+                    <div id="resultado-comparativo" class="empty-state" style="margin-top: 20px;">
+                        Selecione pelo menos uma caixa e clique em "Comparar Caixas"
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer style="background: #1a1a2e; color: rgba(255,255,255,0.6); text-align: center; padding: 20px; font-size: 0.85em;">
+            BoxOptimizer - Calculadora de Otimização de Embalagens | Dados fictícios para demonstração
+        </footer>
+    </div>
+
+    <script src="js/calculator.js"></script>
+    <script>
+        // Preencher o select de caixas dinamicamente
+        (function() {
+            const select = document.getElementById('caixa');
+            CAIXAS.forEach(caixa => {
+                const option = document.createElement('option');
+                option.value = caixa.nome;
+                option.textContent = caixa.nome + ' - ' + caixa.dims[0] + '×' + caixa.dims[1] + '×' + caixa.dims[2] + 'mm';
+                option.setAttribute('data-ocupacao', caixa.ocupacao_atual * 100);
+                option.setAttribute('data-papel', caixa.preenchimento_papel_m);
+                select.appendChild(option);
+            });
+        })();
+    </script>
+</body>
+</html>
